@@ -72,6 +72,59 @@
     </section>
   </div>
 
+  <!-- Modal ingreso manual -->
+<div id="manualModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>No se pudo escanear</h3>
+    <p>Ingrese el código manualmente:</p>
+
+    <input type="text" id="codigoManualInput" class="input-manual" />
+
+    <div class="modal-actions">
+      <button id="btnManualEnviar" class="btn btn-primary">Agregar</button>
+      <button id="btnManualCerrar" class="btn btn-secondary">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+  }
+  .modal-content {
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    width:300px;
+    max-width:90%;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+  }
+  .input-manual {
+    width:100%;
+    padding:8px;
+    margin:12px 0;
+    font-size:16px;
+  }
+  .modal-actions {
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .btn-secondary {
+    background:#ccc;
+    border:none;
+    padding:8px 12px;
+    border-radius:6px;
+  }
+</style>
+
   <!-- Modal de confirmación de impresión -->
   <div id="print-modal" class="modal hidden">
     <div class="modal-content">
@@ -87,5 +140,6 @@
   <script src="https://unpkg.com/@zxing/library@latest"></script>
   <!-- Lógica del kiosco -->
   <script src="app.js"></script>
+
 </body>
 </html>

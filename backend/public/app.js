@@ -5,6 +5,9 @@ let productsCache = [];
 let codeReader = null;
 let selectedDeviceId = null;
 let scanning = false;
+let scanTimeout = null;
+let ultimoCodigoLeido = null;
+
 
 // Elementos DOM
 const video = document.getElementById("video");
@@ -170,10 +173,12 @@ modalNo.addEventListener("click", () => {
 // === Lógica del escáner (ZXing) ===
 function manejarResultadoEscaneo(codigo) {
   const limpio = codigo.trim();
+  console.log("Código escaneado:", limpio); // Aquí verificamos el código que ZXing lee
+  
   fetch(`${API_BASE}/scan`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code: limpio })
+    body: JSON.stringify({ code: limpio }) // Enviar el código al backend
   })
     .then((res) => {
       if (!res.ok) {
@@ -191,6 +196,7 @@ function manejarResultadoEscaneo(codigo) {
     });
 }
 
+
 async function iniciarScanner() {
   if (scanning) return;
   try {
@@ -207,12 +213,23 @@ async function iniciarScanner() {
       "Escaneando... Apunte el código de barras a la cámara.";
     scanning = true;
 
+     // ⏱️ NUEVO: temporizador de 7 segundos
+    scanTimeout = setTimeout(() => {
+      detenerScanner();      // apaga la cámara
+      mostrarModalManual();  // abre el modal para código manual
+    }, 7000);
+
     codeReader.decodeFromVideoDevice(
   selectedDeviceId,
   video,
   { video: { width: { ideal: 1920 }, height: { ideal: 1080 } } },
   (result, err) => {
       if (result) {
+         // NUEVO: si sí leyó algo, cancelamos el timeout
+          if (scanTimeout) {
+            clearTimeout(scanTimeout);
+            scanTimeout = null;
+          }
         manejarResultadoEscaneo(result.text);
       }
     });
@@ -226,6 +243,13 @@ function detenerScanner() {
   if (codeReader) {
     codeReader.reset();
   }
+
+// NUEVO: limpiar el temporizador si quedaba activo
+  if (scanTimeout) {
+    clearTimeout(scanTimeout);
+    scanTimeout = null;
+  }
+
   scanning = false;
   scannerStatus.textContent =
     "Escáner detenido. Presione 'Iniciar escáner' para continuar.";
@@ -299,3 +323,59 @@ function cargarProductos() {
 
 cargarProductos();
 renderCarrito();
+
+
+// === Modal de ingreso manual ===
+
+const manualModal = document.getElementById("manualModal");
+const codigoManualInput = document.getElementById("codigoManualInput");
+const btnManualEnviar = document.getElementById("btnManualEnviar");
+const btnManualCerrar = document.getElementById("btnManualCerrar");
+
+// Mostrar modal
+function mostrarModalManual() {
+  console.log("MOSTRAR MODAL EJECUTADO"); // para depuración
+  codigoManualInput.value = "";
+  manualModal.style.display = "flex";
+  codigoManualInput.focus();
+}
+
+// Cerrar modal
+function cerrarModalManual() {
+  manualModal.style.display = "none";
+}
+
+// Cuando el usuario agrega un código manualmente
+btnManualEnviar.addEventListener("click", () => {
+  const codigo = codigoManualInput.value.trim();
+
+  if (!codigo) {
+    alert("Ingrese un código de barras.");
+    return;
+  }
+
+  fetch(`${API_BASE}/scan`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code: codigo })
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("Producto no registrado.");
+      }
+      return res.json();
+    })
+    .then((producto) => {
+      agregarAlCarrito(producto);
+      lastScanText.textContent = `Agregado manualmente: ${producto.nombre}`;
+      cerrarModalManual();
+    })
+    .catch(() => {
+      alert("No se encontró un producto con ese código.");
+    });
+});
+
+// Botón cancelar
+btnManualCerrar.addEventListener("click", () => {
+  cerrarModalManual();
+});

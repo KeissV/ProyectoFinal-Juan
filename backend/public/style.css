@@ -250,7 +250,7 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.5);
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
 }
@@ -282,4 +282,11 @@ body {
   .right-panel {
     border-top: 3px solid #d1d5db;
   }
+}
+
+#manualModal {
+  z-index: 999999 !important;
+}
+#print-modal {
+  z-index: 9990 !important;
 }
