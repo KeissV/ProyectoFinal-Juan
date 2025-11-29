@@ -1,24 +1,55 @@
 const express = require("express");
-const cors = require("cors");
-require("dotenv").config();
-
-const productRoutes = require("./productRoutes");
-const saleRoutes = require("./saleRoutes");
+const path = require("path");
+const productsData = require("./productsData");
 
 const app = express();
+const PORT = process.env.PORT || 4000;
 
-app.use(cors());
 app.use(express.json());
 
-// Rutas API
-app.use("/api/products", productRoutes);
-app.use("/api/sales", saleRoutes);
+// Servir frontend estático
+app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/", (req, res) => {
-  res.send("API del Kiosco funcionando correctamente");
+// === API de productos ===
+
+// Lista completa de productos
+app.get("/api/products", (req, res) => {
+  res.json(productsData);
 });
 
-const PORT = process.env.PORT || 4000;
+// Búsqueda por nombre (para el buscador táctil)
+app.get("/api/products/search", (req, res) => {
+  const q = (req.query.q || "").toLowerCase();
+  if (!q) return res.json(productsData);
+
+  const filtered = productsData.filter((p) =>
+    p.nombre.toLowerCase().includes(q)
+  );
+  res.json(filtered);
+});
+
+// Escaneo por código de barras
+app.post("/api/scan", (req, res) => {
+  const { code } = req.body;
+  if (!code) {
+    return res.status(400).json({ message: "No se recibió código." });
+  }
+
+  const limpio = String(code).trim();
+  const product = productsData.find((p) => p.codigo === limpio);
+
+  if (!product) {
+    return res.status(404).json({ message: "Producto no registrado." });
+  }
+
+  res.json(product);
+});
+
+// (Opcional) Ruta base
+app.get("/api/status", (req, res) => {
+  res.json({ status: "ok", message: "Backend del kiosco activo." });
+});
+
 app.listen(PORT, () => {
-  console.log(`Servidor activo en http://localhost:${PORT}`);
+  console.log(`Servidor del kiosco activo en http://localhost:${PORT}`);
 });

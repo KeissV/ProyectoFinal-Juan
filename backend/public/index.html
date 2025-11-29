@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiosco Autoservicio</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="kiosk-layout">
+    <!-- PANEL IZQUIERDO: ESCÁNER + BUSCADOR -->
+    <section class="left-panel">
+      <header class="header">
+        <h1>Kiosco Autoservicio</h1>
+        <p class="subtitle">Escanee o busque productos para agregarlos al carrito.</p>
+      </header>
+
+      <div class="scanner-card">
+        <h2>Zona de escaneo (cámara)</h2>
+        <video id="video" class="video-preview" autoplay muted playsinline></video>
+        <div class="scanner-status" id="scanner-status">
+          Cámara lista. Presione "Iniciar escáner".
+        </div>
+        <div class="scanner-buttons">
+          <button id="btnStart" class="btn btn-primary">▶ Iniciar escáner</button>
+          <button id="btnStop" class="btn btn-secondary">⏹ Detener escáner</button>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h2>Último producto detectado</h2>
+        <p id="last-scan-text">Aún no se ha escaneado ningún producto.</p>
+      </div>
+
+      <div class="search-card">
+        <h2>Buscar producto</h2>
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Escriba el nombre del producto..."
+          class="search-input"
+        />
+        <div id="search-results" class="search-results">
+          <p>Escriba para buscar productos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL DERECHO: CARRITO + FACTURA -->
+    <section class="right-panel">
+      <div class="cart-card">
+        <h2>Carrito de compras</h2>
+        <div id="cart-items" class="cart-items">
+          <p>Sin productos. Escanee o agregue desde el buscador.</p>
+        </div>
+        <div class="cart-total">
+          <span>Total:</span>
+          <span id="cart-total">₡0</span>
+        </div>
+        <div class="cart-buttons">
+          <button id="btnPay" class="btn btn-primary">💳 Pagar</button>
+          <button id="btnClear" class="btn btn-danger">🗑 Vaciar carrito</button>
+        </div>
+      </div>
+
+      <div class="ticket-card">
+        <h2>Factura / Ticket</h2>
+        <div id="ticket" class="ticket">
+          <p>Realice una compra para generar la factura.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal de confirmación de impresión -->
+  <div id="print-modal" class="modal hidden">
+    <div class="modal-content">
+      <p>¿Desea imprimir la factura?</p>
+      <div class="modal-buttons">
+        <button id="modal-yes" class="btn btn-primary">Sí</button>
+        <button id="modal-no" class="btn btn-secondary">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZXing para el escáner -->
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <!-- Lógica del kiosco -->
+  <script src="app.js"></script>
+</body>
+</html>
