@@ -48,7 +48,6 @@ function playBeep() {
       ctx.close();
     }, 120);
   } catch (e) {
-    // silencio si no es soportado
   }
 }
 
